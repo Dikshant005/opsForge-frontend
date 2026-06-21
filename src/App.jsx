@@ -4,9 +4,10 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { fetchCurrentUser } from './features/auth/authSlice';
+import DashboardLayout from './layouts/DashboardLayout';
+import Login from './features/auth/Login';
 
 // 1. Create a couple of quick dummy components for testing
-const Login = () => <div>Login Page (Public)</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 const Tickets = () => <div>Tickets Page (Protected)</div>;
 
@@ -43,8 +44,10 @@ function App() {
         {/* PROTECTED ROUTES */}
         {/* We use our wrapper component here */}
         <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tickets" element={<Tickets />} />
+          </Route>
         </Route>
         
         {/* CATCH ALL - 404 Route */}
