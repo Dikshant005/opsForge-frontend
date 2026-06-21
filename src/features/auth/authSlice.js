@@ -18,6 +18,24 @@ export const fetchCurrentUser = createAsyncThunk(
   },
 )
 
+export const logoutUser = createAsyncThunk(
+    'auth/logoutUser',
+    async (_, thunkAPI) => {
+        try{
+            // hit the logout endpoint
+            await axiosClient.post('/api/auth/logout');
+            
+        }
+        catch(error){
+            return thunkAPI.rejectWithValue(error.response?.data)
+        }   
+        finally{
+            // Clear the token from localStorage
+            localStorage.removeItem('token');
+        }
+    }
+)
+
 const initialState = {
   // Define your initial state properties here
   user: null,
@@ -38,14 +56,6 @@ const authSlice = createSlice({
       // 2. Save the token to localStorage here as well!
       localStorage.setItem('token', action.payload.token);
     },
-    logout: (state) => {
-      // 1. Clear the state
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      // 2. Remove the token from localStorage
-      localStorage.removeItem('token');
-    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCurrentUser.pending, (state) => {
@@ -60,9 +70,17 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      
     });
+    builder.addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.status = 'idle';
+        
+      })
   }
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials } = authSlice.actions;
 export default authSlice.reducer;
