@@ -1,4 +1,4 @@
-import {Outlet, useNavigate} from 'react-router-dom'
+import {Outlet, useNavigate, Link} from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {logoutUser} from '../features/auth/authSlice'
 
@@ -29,10 +29,37 @@ const DashboardLayout = () => {
         <div className="flex h-16 items-center justify-center border-b border-gray-700 font-bold text-xl">
           OpsForge
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-           {/* We will add our Role-Based Links here later! */}
-           <div className="p-2 bg-gray-700 rounded cursor-pointer">Dashboard</div>
-           <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">Tickets</div>
+        
+        <nav className="flex-1 p-4 space-y-2 ">
+           {/* everyone can see this */}
+           <Link to="/dashboard" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+           Dashboard
+           </Link>
+           {/* DEV only */}
+           {user?.role === 'DEV' && (
+           <Link to="/my-tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+           Tickets
+           </Link>
+           )}
+
+           {/* QA only */}
+           {user?.role ==="QA"&&(
+            <Link to="/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+            Tickets
+            </Link>
+           )}
+
+           {/* ADMIN only */}
+           {user?.role ==="ADMIN"&&(
+            <>
+               <Link to="/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+                 All Tickets
+               </Link>
+               <Link to="/users" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+                 User Management
+               </Link>
+            </>   
+           )}
         </nav>
       </aside>
 
@@ -43,6 +70,10 @@ const DashboardLayout = () => {
         <header className="flex h-16 items-center justify-between bg-white px-6 shadow">
           <div className="text-lg font-medium text-gray-700">
             Welcome, {user?.username || 'User'}
+            {/* displaying the role */}
+            <span className='ml-2 text-sm font-bold text-blue-500'>
+                [{user?.role || 'GUEST'}]
+            </span>
           </div>
           <button 
             onClick={handleLogout}
@@ -54,7 +85,6 @@ const DashboardLayout = () => {
 
         {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto p-6">
-          {/* This is where your nested routes (<Dashboard />, <Tickets />, etc.) will render! */}
           <Outlet />
         </main>
         

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {  Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
@@ -36,7 +36,6 @@ function App() {
 
 
   return (
-    <BrowserRouter>
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/login" element={<Login />} />
@@ -53,7 +52,6 @@ function App() {
         {/* CATCH ALL - 404 Route */}
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
-    </BrowserRouter>
   );
 }
 

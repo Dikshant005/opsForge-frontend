@@ -48,14 +48,14 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action) => {
-      // 1. Update the state with the payload (user and token)
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.isAuthenticated = true;
-      // 2. Save the token to localStorage here as well!
-      localStorage.setItem('token', action.payload.token);
-    },
+    // setCredentials: (state, action) => {
+    //   // 1. Update the state with the payload (user and token)
+    //   state.user = action.payload.user;
+    //   state.token = action.payload.token;
+    //   state.isAuthenticated = true;
+    //   // 2. Save the token to localStorage here as well!
+    //   localStorage.setItem('token', action.payload.token);
+    // },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCurrentUser.pending, (state) => {
@@ -64,6 +64,7 @@ const authSlice = createSlice({
     builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
       state.status = 'succeeded';
       state.user = action.payload;
+      state.isAuthenticated = true;
     });
     builder.addCase(fetchCurrentUser.rejected, (state) => {
       state.status = 'failed';
@@ -82,5 +83,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { setCredentials } = authSlice.actions;
+// export const { setCredentials } = authSlice.actions;
 export default authSlice.reducer;
