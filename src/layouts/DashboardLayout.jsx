@@ -37,24 +37,32 @@ const DashboardLayout = () => {
            </Link>
            {/* DEV only */}
            {user?.role === 'DEV' && (
-           <Link to="/my-tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+           <Link to="/dashboard/my-tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
            Tickets
            </Link>
            )}
 
            {/* QA only */}
            {user?.role ==="QA"&&(
-            <Link to="/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+            <>
+            <Link to="/dashboard/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
             Tickets
             </Link>
+            <Link to="/dashboard/create-ticket" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+            Create Ticket
+            </Link>
+            </>
            )}
 
            {/* ADMIN only */}
            {user?.role ==="ADMIN"&&(
             <>
-               <Link to="/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+               <Link to="/dashboard/tickets" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
                  All Tickets
                </Link>
+               <Link to="/dashboard/create-ticket" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+              Create Ticket
+              </Link> 
                <Link to="/users" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
                  User Management
                </Link>

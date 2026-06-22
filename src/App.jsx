@@ -6,10 +6,11 @@ import { useSelector } from 'react-redux';
 import { fetchCurrentUser } from './features/auth/authSlice';
 import DashboardLayout from './layouts/DashboardLayout';
 import Login from './features/auth/Login';
+import Tickets from './features/tickets/Tickets';
+import CreateTicket from './features/tickets/CreateTicket';
 
 // 1. Create a couple of quick dummy components for testing
 const Dashboard = () => <div>Dashboard (Protected)</div>;
-const Tickets = () => <div>Tickets Page (Protected)</div>;
 
 
 function App() {
@@ -45,7 +46,9 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/dashboard/my-tickets" element={<Tickets view="mine" />} />
+          <Route path="/dashboard/tickets" element={<Tickets view="all" />} />
+          <Route path="/dashboard/create-ticket" element={<CreateTicket />} />
           </Route>
         </Route>
         
