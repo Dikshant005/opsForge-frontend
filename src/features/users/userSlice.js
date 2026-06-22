@@ -22,9 +22,9 @@ export const fetchUsers = createAsyncThunk(
 
 export const updateUserRole = createAsyncThunk(
     'users/updateUserRole',
-    async({id, role}, thunkAPI) => {
+    async({username, role}, thunkAPI) => {
         try{
-            const response = await axiosClient.put(`/api/users/${id}/role`, {role});
+            const response = await axiosClient.put(`/api/users/${username}/role`, {role});
             return response.data;
         }
         catch(error){
@@ -55,9 +55,10 @@ const userSlice = createSlice({
                 state.error = action.payload || 'Failed to fetch users';
             })
             .addCase(updateUserRole.fulfilled, (state, action) => {
-                const user = state.users.find(u => u.id === action.payload.id);
+                const { username, role } = action.meta.arg;
+                const user = state.users.find(u => u.username === username);
                 if (user) {
-                    user.role = action.payload.role;
+                    user.role = role;
                 }
             });
     }

@@ -21,10 +21,10 @@ if(status === 'loading'){
 return(
     <ul>
         {users.map(user => (
-            <li key={user.id}>{user.name} - {user.email} - 
+            <li key={user.id}>{user.username} -
             {/* role dropdown */}
             <select value={user.role} onChange={(e)=>{
-                dispatch(updateUserRole({id:user.id, role:e.target.value}))
+                dispatch(updateUserRole({username:user.username, role:e.target.value}))
             }}>
                 <option value="DEV">Developer</option>
                 <option value="QA">QA</option>

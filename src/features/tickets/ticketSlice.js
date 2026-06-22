@@ -51,54 +51,57 @@ const ticketSlice = createSlice({
     name:'tickets',
     initialState:{
         tickets:[],
-        status:'idle',
+        fetchstatus:'idle',
+        createStatus: 'idle',
+        updatingIds: [],
         error:null
     },
     reducers:{},
-    extraReducers:(builder)=>{
-        builder
-        // fetchTickets
-        .addCase(fetchTickets.pending, (state) => {
-            state.status = 'loading';
-        })
-        .addCase(fetchTickets.fulfilled, (state, action) => {
-            state.status = 'succeeded';
-            state.tickets = action.payload;
-        })
-        .addCase(fetchTickets.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.payload || 'Failed to fetch tickets';
-        })
+    extraReducers: (builder) => {
+    builder
+      .addCase(fetchTickets.pending, (state) => {
+        state.fetchStatus = 'loading';
+      })
+      .addCase(fetchTickets.fulfilled, (state, action) => {
+        state.fetchStatus = 'succeeded';
+        state.tickets = action.payload;
+      })
+      .addCase(fetchTickets.rejected, (state, action) => {
+        state.fetchStatus = 'failed';
+        state.error = action.payload || 'Failed to fetch tickets';
+      })
 
-        // createTicket
-        .addCase(createTicket.pending, (state) => {
-            state.status = 'loading';
-        })
-        .addCase(createTicket.fulfilled, (state, action) => {
-            state.status = 'succeeded';
-            state.tickets.push(action.payload); // Add the new ticket to the list
-        })
-        .addCase(createTicket.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.payload || 'Failed to create ticket';
-        })
+      .addCase(createTicket.pending, (state) => {
+        state.createStatus = 'loading';
+      })
+      .addCase(createTicket.fulfilled, (state, action) => {
+        state.createStatus = 'succeeded'; 
+        state.tickets.push(action.payload);
+      })
+      .addCase(createTicket.rejected, (state, action) => {
+        state.createStatus = 'failed'; 
+        state.error = action.payload || 'Failed to create ticket';
+      })
 
-        // updateTicketStatus
-        .addCase(updateTicketStatus.pending, (state) => {
-            state.status = 'loading';
-        })
-        .addCase(updateTicketStatus.fulfilled, (state, action) => {
-            state.status = 'succeeded';
-            const index = state.tickets.findIndex(ticket => ticket.id === action.payload.id);
-            if (index !== -1) {
-                state.tickets[index] = action.payload;
-            }
-        })
-        .addCase(updateTicketStatus.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.payload || 'Failed to update ticket status';
-        });
-    }
-})
+      .addCase(updateTicketStatus.pending, (state, action) => {
+        const id = action.meta.arg.id;
+        if (!state.updatingIds.includes(id)) {
+          state.updatingIds.push(id);
+        }
+      })
+      .addCase(updateTicketStatus.fulfilled, (state, action) => {
+        state.updatingIds = state.updatingIds.filter((id) => id !== action.payload.id); // 🆕 NEW
+        const index = state.tickets.findIndex((ticket) => ticket.id === action.payload.id);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+      })
+      .addCase(updateTicketStatus.rejected, (state, action) => {
+        const id = action.meta.arg.id;
+        state.updatingIds = state.updatingIds.filter((updatingId) => updatingId !== id);
+        state.error = action.payload || 'Failed to update ticket status';
+      });
+  },
+});
 
 export default ticketSlice.reducer;
