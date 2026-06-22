@@ -21,7 +21,7 @@ return (
             <select name="ticket status" id={`ticket-status-${ticket.id}`} value={ticket.status} onChange={(e)=>{
                 dispatch(updateTicketStatus({id:ticket.id, status:e.target.value}))
             }}>
-                <option value="OPEN">Open</option>
+                <option value="PENDING">Pending</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="RESOLVED">Resolved</option>
                 <option value="CLOSED">Closed</option>

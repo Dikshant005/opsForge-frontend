@@ -63,7 +63,7 @@ const DashboardLayout = () => {
                <Link to="/dashboard/create-ticket" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
               Create Ticket
               </Link> 
-               <Link to="/users" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
+               <Link to="/dashboard/users" className="block cursor-pointer rounded p-2 hover:bg-gray-700">
                  User Management
                </Link>
             </>   
