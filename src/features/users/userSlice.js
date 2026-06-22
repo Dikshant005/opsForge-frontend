@@ -33,12 +33,41 @@ export const updateUserRole = createAsyncThunk(
     }
 )
 
+export const listOfPendingApprovals = createAsyncThunk(
+    'users/listOfPendingApprovals',
+    async(_,thunkAPI)=>{
+        try{
+            const response = await axiosClient.get(`/api/users/pending`);
+            return response.data;
+        }
+        catch(error){
+            return thunkAPI.rejectWithValue(error.response?.data);
+        }
+    }
+)
+
+export const updateApprovalStatus = createAsyncThunk(
+    'users/updateApprovalStatus',
+    async({username, status},thunkAPI)=>{
+        try{
+            const response = await axiosClient.put(`/api/users/${username}/approve`, {status});
+            return response.data;
+        }
+        catch(error){
+            return thunkAPI.rejectWithValue(error.response?.data);
+        }
+    }
+)
+
 const userSlice = createSlice({
     name: 'users',
     initialState: {
         users: [],
+        pendingApprovals: [],
         status: 'idle',
-        error: null
+        error: null,
+        pendingStatus: 'idle',
+        
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -60,7 +89,18 @@ const userSlice = createSlice({
                 if (user) {
                     user.role = role;
                 }
-            });
+            })
+            .addCase(listOfPendingApprovals.pending, (state) => {
+            state.pendingStatus = 'loading';
+            })
+            .addCase(listOfPendingApprovals.fulfilled, (state, action) => {
+                state.pendingStatus = 'succeeded';
+                state.pendingApprovals = action.payload; 
+            })
+            .addCase(updateApprovalStatus.fulfilled, (state, action) => {
+                const { username } = action.meta.arg;
+                state.pendingApprovals = state.pendingApprovals.filter(u => u.username !== username);
+            })
     }
 });
 

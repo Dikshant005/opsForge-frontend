@@ -90,7 +90,7 @@ const ticketSlice = createSlice({
         }
       })
       .addCase(updateTicketStatus.fulfilled, (state, action) => {
-        state.updatingIds = state.updatingIds.filter((id) => id !== action.payload.id); // 🆕 NEW
+        state.updatingIds = state.updatingIds.filter((id) => id !== action.payload.id); 
         const index = state.tickets.findIndex((ticket) => ticket.id === action.payload.id);
         if (index !== -1) {
           state.tickets[index] = action.payload;
