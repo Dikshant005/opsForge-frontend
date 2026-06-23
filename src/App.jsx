@@ -10,6 +10,7 @@ import Tickets from './features/tickets/Tickets';
 import CreateTicket from './features/tickets/CreateTicket';
 import Dashboard from './pages/Dashboard';
 import Users from './features/users/Users';
+import TicketDetail from './features/tickets/TicketDetail';
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
           <Route path="/dashboard/users" element={<Users />} />
           <Route path="/dashboard/my-tickets" element={<Tickets view="mine" />} />
           <Route path="/dashboard/tickets" element={<Tickets view="all" />} />
+          <Route path="/dashboard/tickets/:id" element={<TicketDetail />} />
           <Route path="/dashboard/create-ticket" element={<CreateTicket />} />
           </Route>
         </Route>

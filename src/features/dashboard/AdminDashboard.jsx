@@ -8,7 +8,6 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // TODO: confirm this matches your actual backend route
                 const response = await axiosClient.get('/api/dashboard/admin');
                 setStats(response.data);
             } catch (error) {
@@ -28,6 +27,7 @@ const AdminDashboard = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatCard label="Open Tickets" value={stats.totalOpenTickets} color="text-blue-600" />
+                <StatCard label="Closed Tickets" value={stats.totalClosedTickets} color="text-gray-600" />
                 <StatCard label="Active Users" value={stats.totalActiveUsers} color="text-green-600" />
                 <StatCard label="Pending Approvals" value={stats.pendingUserApprovals} color="text-orange-600" />
             </div>

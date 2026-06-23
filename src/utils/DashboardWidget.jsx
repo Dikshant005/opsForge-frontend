@@ -1,11 +1,11 @@
 // reusable pieces shared by AdminDashboard / DevDashboard / QaDashboard.
 
 export const StatCard = ({ label, value, color = 'text-blue-600' }) => (
-    <div className="bg-white p-6 rounded-lg shadow border flex flex-col items-center">
+    <div className="bg-white p-6 rounded-lg shadow border flex flex-col items-center h-full">
         <span className="text-sm text-gray-500 font-semibold tracking-wider text-center">
             {label}
         </span>
-        <span className={`text-4xl font-bold mt-2 ${color}`}>
+        <span className={`text-4xl font-bold mt-auto pt-2 ${color}`}>
             {value}
         </span>
     </div>
@@ -26,9 +26,6 @@ export const TicketSection = ({ title, tickets, emptyText }) => (
     </div>
 );
 
-// NOTE: your sample responses had empty arrays, so the exact ticket fields
-// are a guess (id, title, status, priority). Adjust the field names below
-// to match whatever your Ticket entity actually returns.
 const TicketCard = ({ ticket }) => (
     <div className="bg-white p-4 rounded-lg shadow border">
         <div className="flex justify-between items-start gap-2">

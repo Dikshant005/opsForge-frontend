@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';   
+import {useDispatch, useSelector} from 'react-redux';
+import {Link} from 'react-router-dom';   
 import {fetchTickets, updateTicketStatus} from './ticketSlice';
 
 const ALL_STATUSES = ['PENDING', 'IN_PROGRESS', 'FIXED', 'CLOSED'];
@@ -40,7 +41,10 @@ function getAvailableStatuses(role, currentStatus) {
 
 function getVisibleTickets(role, tickets, currentUserId) {
   if (role === 'DEV') {
-    return tickets.filter((t) => t.assignedToId === currentUserId);
+    return tickets.filter((t) => t.developers?.some((dev) => dev.id === currentUserId));
+  }
+  if (role === 'QA') {
+    return tickets.filter((t) => t.reviewers?.some((qa) => qa.id === currentUserId));
   }
   return tickets;
 }
@@ -77,27 +81,31 @@ return (
             key={ticket.id}
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 py-3.5 px-4 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors"
           >
-            {ticket.title}
-            <select
-              name="ticket status"
-              id={`ticket-status-${ticket.id}`}
-              value={ticket.status}
-              disabled={isLocked}
-              onChange={(e) => {
-                dispatch(updateTicketStatus({ id: ticket.id, status: e.target.value }));
-              }}
-              className={`text-sm font-medium rounded-lg px-2.5 py-1.5 border cursor-pointer transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 ${
-                STATUS_SELECT_STYLES[ticket.status] || 'border-gray-300 bg-white text-gray-800'
-              }`}
-            >
-                
-              {options.map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_LABELS[s]}
-                </option>
-              ))}
-            </select>
-            {isUpdating && <span className="text-xs text-gray-400 italic flex-shrink-0"> updating...</span>}
+            <Link to={`/dashboard/tickets/${ticket.id}`} className="hover:text-blue-600 hover:underline flex-grow truncate">
+              {ticket.title}
+            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <select
+                name="ticket status"
+                id={`ticket-status-${ticket.id}`}
+                value={ticket.status}
+                disabled={isLocked}
+                onChange={(e) => {
+                  dispatch(updateTicketStatus({ id: ticket.id, status: e.target.value }));
+                }}
+                className={`text-sm font-medium rounded-lg px-2.5 py-1.5 border cursor-pointer transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 ${
+                  STATUS_SELECT_STYLES[ticket.status] || 'border-gray-300 bg-white text-gray-800'
+                }`}
+              >
+                  
+                {options.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABELS[s]}
+                  </option>
+                ))}
+              </select>
+              {isUpdating && <span className="text-xs text-gray-400 italic flex-shrink-0 w-16 text-right">updating...</span>}
+            </div>
           </li>
         );
       })}

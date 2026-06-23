@@ -9,7 +9,6 @@ const DevDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // TODO: confirm this matches your actual backend route
                 const response = await axiosClient.get('/api/dashboard/dev');
                 setStats(response.data);
             } catch (error) {
@@ -29,18 +28,12 @@ const DevDashboard = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatCard label="Active Tickets" value={stats.activeTicketsCount} color="text-blue-600" />
-                <StatCard label="Needing Rework" value={stats.ticketsNeedingReworkCount} color="text-orange-600" />
             </div>
 
             <TicketSection
                 title="My Active Tickets"
                 tickets={stats.activeTickets}
                 emptyText="No active tickets assigned to you right now."
-            />
-            <TicketSection
-                title="Tickets Needing Rework"
-                tickets={stats.reworkTickets}
-                emptyText="Nothing's been sent back for rework."
             />
         </div>
     );

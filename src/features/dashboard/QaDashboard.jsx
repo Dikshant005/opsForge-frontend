@@ -8,7 +8,6 @@ const QaDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // TODO: confirm this matches your actual backend route
                 const response = await axiosClient.get('/api/dashboard/qa');
                 setStats(response.data);
             } catch (error) {
@@ -28,18 +27,12 @@ const QaDashboard = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatCard label="Ready for Testing" value={stats.readyForTestingCount} color="text-green-600" />
-                <StatCard label="Actively Testing" value={stats.activelyTestingCount} color="text-blue-600" />
             </div>
 
             <TicketSection
                 title="Ready for Testing"
                 tickets={stats.readyForTestingTickets}
                 emptyText="Nothing's waiting for testing right now."
-            />
-            <TicketSection
-                title="My Active Tests"
-                tickets={stats.myActiveTests}
-                emptyText="You're not actively testing anything right now."
             />
         </div>
     );
