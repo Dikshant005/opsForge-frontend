@@ -12,7 +12,7 @@ import CreateTicket from './features/tickets/CreateTicket';
 import Dashboard from './pages/Dashboard';
 import Users from './features/users/Users';
 import TicketDetail from './features/tickets/TicketDetail';
-
+import Landing from './pages/Landing';
 
 function App() {
   
@@ -40,6 +40,7 @@ function App() {
   return (
       <Routes>
         {/* PUBLIC ROUTES */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
