@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTicketById, fetchTicketHistory, assignTicket, clearCurrentTicket } from '../../features/tickets/ticketSlice';
 import axiosClient from '../../api/axiosClient';
+import Comments from '../comments/Comments';
 
 // ASSUMPTIONS (flagging these since they weren't confirmed in our earlier back-and-forth):
 // 1. Auth state lives at state.auth.user and has a `.role` field ('ADMIN' | 'DEV' | 'QA').
@@ -102,7 +103,9 @@ const TicketDetail = () => {
   useEffect(() => {
     dispatch(fetchTicketById(id));
     dispatch(fetchTicketHistory(id));
-    return () => dispatch(clearCurrentTicket());
+    return () => {
+      dispatch(clearCurrentTicket());
+    };
   }, [dispatch, id]);
 
   // Only admins ever see the assign panel, so only admins need the dropdown data.
@@ -180,7 +183,7 @@ const TicketDetail = () => {
   if (!currentTicket) return null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <Link to="/dashboard/tickets" className="text-sm text-blue-600 hover:underline">
         &larr; Back to All Tickets
       </Link>
@@ -191,157 +194,161 @@ const TicketDetail = () => {
         </div>
       )}
 
-      <div className="mt-4 bg-white rounded-lg shadow p-6">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-semibold text-gray-900">{currentTicket.title}</h1>
-          <span
-            className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium ${statusBadgeClass(
-              currentTicket.status
-            )}`}
-          >
-            {currentTicket.status}
-          </span>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: Title, Description, Attachment, Comments */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h1 className="text-2xl font-semibold text-gray-900">{currentTicket.title}</h1>
+            
+            <p className="mt-3 text-gray-700 whitespace-pre-wrap">{currentTicket.description}</p>
+            <p className="mt-3 text-xs text-gray-400">
+              Created {new Date(currentTicket.createdAt).toLocaleString()}
+            </p>
+
+            {currentTicket.attachmentUrl && (
+              <div className="mt-5">
+                <p className="text-sm font-medium text-gray-600 mb-2">Attachment</p>
+                <a href={currentTicket.attachmentUrl} target="_blank" rel="noreferrer">
+                  <img
+                    src={currentTicket.attachmentUrl}
+                    alt="Ticket attachment"
+                    className="max-h-72 rounded border border-gray-200"
+                  />
+                </a>
+              </div>
+            )}
+          </div>
+
+          <Comments ticketId={id} />
         </div>
 
-        <p className="mt-3 text-gray-700 whitespace-pre-wrap">{currentTicket.description}</p>
-
-        <p className="mt-3 text-xs text-gray-400">
-          Created {new Date(currentTicket.createdAt).toLocaleString()}
-        </p>
-
-        {currentTicket.attachmentUrl && (
-          <div className="mt-5">
-            <p className="text-sm font-medium text-gray-600 mb-2">Attachment</p>
-            <a href={currentTicket.attachmentUrl} target="_blank" rel="noreferrer">
-              <img
-                src={currentTicket.attachmentUrl}
-                alt="Ticket attachment"
-                className="max-h-72 rounded border border-gray-200"
-              />
-            </a>
-          </div>
-        )}
-
-        {/* Current assignees, visible to every role */}
-        <div className="mt-6 grid grid-cols-2 gap-6 border-t border-gray-100 pt-5">
-          <div>
-            <p className="text-sm font-medium text-gray-600">Developers</p>
-            <ul className="mt-1 space-y-1">
-              {currentTicket.developers.length === 0 && (
-                <li className="text-sm text-gray-400">Unassigned</li>
-              )}
-              {currentTicket.developers.map((dev) => (
-                <li key={dev.id} className="text-sm text-gray-800">
-                  {dev.username}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-600">QAs</p>
-            <ul className="mt-1 space-y-1">
-              {currentTicket.reviewers.length === 0 && (
-                <li className="text-sm text-gray-400">Unassigned</li>
-              )}
-              {currentTicket.reviewers.map((reviewer) => (
-                <li key={reviewer.id} className="text-sm text-gray-800">
-                  {reviewer.username}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Assign panel - admin only */}
-      {isAdmin && (
-        <div className="mt-6 bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Assign Ticket</h2>
-
-          {usersLoadError && (
-            <p className="mb-3 text-sm text-red-600">{usersLoadError}</p>
-          )}
-
-          <form onSubmit={handleAssign}>
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-2">Developers</p>
-                {usersLoadError && devList.length === 0 ? (
-                  <p className="text-xs text-red-400">Error loading developers.</p>
-                ) : (
-                  <MultiSelectDropdown 
-                    label="Developers" 
-                    options={devList} 
-                    selectedIds={selectedDevIds} 
-                    toggleOption={toggleDev} 
-                  />
-                )}
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-2">QAs</p>
-                {usersLoadError && qaList.length === 0 ? (
-                  <p className="text-xs text-red-400">Error loading QAs.</p>
-                ) : (
-                  <MultiSelectDropdown 
-                    label="QAs" 
-                    options={qaList} 
-                    selectedIds={selectedQaIds} 
-                    toggleOption={toggleQa} 
-                  />
-                )}
-              </div>
+        {/* Right Column: Status, Assignees, Assign Panel, History */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-600">Status</span>
+              <span
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium ${statusBadgeClass(
+                  currentTicket.status
+                )}`}
+              >
+                {currentTicket.status}
+              </span>
             </div>
 
-            {assignError && <p className="mt-4 text-sm text-red-600">{assignError}</p>}
-            {justAssigned && !assignError && (
-              <p className="mt-4 text-sm text-green-600">Assignment updated.</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={assignStatus === 'loading'}
-              className="mt-5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded disabled:opacity-50"
-            >
-              {assignStatus === 'loading' ? 'Saving...' : 'Save Assignment'}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* Status History */}
-      <div className="mt-6 bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Status History</h2>
-        {ticketHistoryStatus === 'loading' ? (
-          <p className="text-sm text-gray-500">Loading history...</p>
-        ) : ticketHistoryStatus === 'failed' ? (
-          <p className="text-sm text-red-500">Failed to load history.</p>
-        ) : ticketHistory.length === 0 ? (
-          <p className="text-sm text-gray-500">No history available.</p>
-        ) : (
-          <div className="space-y-4">
-            {ticketHistory.map((item) => (
-              <div key={item.id} className="flex gap-4 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-800 font-medium">
-                    {item.details}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    By {item.performedBy?.username || 'System'} &bull; {new Date(item.timestamp).toLocaleString()}
-                  </p>
-                </div>
+            {/* Current assignees, visible to every role */}
+            <div className="border-t border-gray-100 pt-5 space-y-5">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Developers</p>
+                <ul className="mt-1 space-y-1">
+                  {currentTicket.developers.length === 0 && (
+                    <li className="text-sm text-gray-400">Unassigned</li>
+                  )}
+                  {currentTicket.developers.map((dev) => (
+                    <li key={dev.id} className="text-sm text-gray-800">
+                      {dev.username}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
+              <div>
+                <p className="text-sm font-medium text-gray-600">QAs</p>
+                <ul className="mt-1 space-y-1">
+                  {currentTicket.reviewers.length === 0 && (
+                    <li className="text-sm text-gray-400">Unassigned</li>
+                  )}
+                  {currentTicket.reviewers.map((reviewer) => (
+                    <li key={reviewer.id} className="text-sm text-gray-800">
+                      {reviewer.username}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Placeholder - needs a comments endpoint that doesn't exist yet */}
-      <div className="mt-6 bg-white rounded-lg shadow p-6 border border-dashed border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-400 mb-1">Comments</h2>
-        <p className="text-sm text-gray-400">
-          Not wired up yet - needs GET/POST /api/tickets/{id}/comments from the backend.
-        </p>
+          {/* Assign panel - admin only */}
+          {isAdmin && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Assign Ticket</h2>
+
+              {usersLoadError && (
+                <p className="mb-3 text-sm text-red-600">{usersLoadError}</p>
+              )}
+
+              <form onSubmit={handleAssign} className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-2">Developers</p>
+                  {usersLoadError && devList.length === 0 ? (
+                    <p className="text-xs text-red-400">Error loading developers.</p>
+                  ) : (
+                    <MultiSelectDropdown 
+                      label="Developers" 
+                      options={devList} 
+                      selectedIds={selectedDevIds} 
+                      toggleOption={toggleDev} 
+                    />
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-2">QAs</p>
+                  {usersLoadError && qaList.length === 0 ? (
+                    <p className="text-xs text-red-400">Error loading QAs.</p>
+                  ) : (
+                    <MultiSelectDropdown 
+                      label="QAs" 
+                      options={qaList} 
+                      selectedIds={selectedQaIds} 
+                      toggleOption={toggleQa} 
+                    />
+                  )}
+                </div>
+
+                {assignError && <p className="text-sm text-red-600">{assignError}</p>}
+                {justAssigned && !assignError && (
+                  <p className="text-sm text-green-600">Assignment updated.</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={assignStatus === 'loading'}
+                  className="w-full mt-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded disabled:opacity-50"
+                >
+                  {assignStatus === 'loading' ? 'Saving...' : 'Save Assignment'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Status History */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Status History</h2>
+            {ticketHistoryStatus === 'loading' ? (
+              <p className="text-sm text-gray-500">Loading history...</p>
+            ) : ticketHistoryStatus === 'failed' ? (
+              <p className="text-sm text-red-500">Failed to load history.</p>
+            ) : ticketHistory.length === 0 ? (
+              <p className="text-sm text-gray-500">No history available.</p>
+            ) : (
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                {ticketHistory.map((item) => (
+                  <div key={item.id} className="flex gap-4 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800 font-medium">
+                        {item.details}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        By {item.performedBy?.username || 'System'} &bull; {new Date(item.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
