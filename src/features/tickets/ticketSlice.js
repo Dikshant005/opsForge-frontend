@@ -28,6 +28,18 @@ export const fetchTicketById = createAsyncThunk(
   }
 );
 
+export const fetchTicketHistory = createAsyncThunk(
+  'tickets/fetchTicketHistory',
+  async (id, thunkAPI) => {
+    try {
+      const response = await axiosClient.get(`/api/tickets/${id}/history`);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 export const createTicket = createAsyncThunk(
   'tickets/createTicket',
   async (ticketData, thunkAPI) => {
@@ -84,6 +96,9 @@ const ticketSlice = createSlice({
     currentTicket: null,
     ticketDetailStatus: 'idle', // idle | loading | succeeded | failed
     assignStatus: 'idle', // idle | loading | succeeded | failed
+    
+    ticketHistory: [],
+    ticketHistoryStatus: 'idle', // idle | loading | succeeded | failed
 
     error: null,
   },
@@ -94,6 +109,8 @@ const ticketSlice = createSlice({
       state.currentTicket = null;
       state.ticketDetailStatus = 'idle';
       state.assignStatus = 'idle';
+      state.ticketHistory = [];
+      state.ticketHistoryStatus = 'idle';
     },
   },
   extraReducers: (builder) => {
@@ -122,6 +139,18 @@ const ticketSlice = createSlice({
       .addCase(fetchTicketById.rejected, (state, action) => {
         state.ticketDetailStatus = 'failed';
         state.error = action.payload || 'Failed to fetch ticket';
+      })
+
+      .addCase(fetchTicketHistory.pending, (state) => {
+        state.ticketHistoryStatus = 'loading';
+      })
+      .addCase(fetchTicketHistory.fulfilled, (state, action) => {
+        state.ticketHistoryStatus = 'succeeded';
+        state.ticketHistory = action.payload;
+      })
+      .addCase(fetchTicketHistory.rejected, (state, action) => {
+        state.ticketHistoryStatus = 'failed';
+        state.error = action.payload || 'Failed to fetch ticket history';
       })
 
       .addCase(createTicket.pending, (state) => {

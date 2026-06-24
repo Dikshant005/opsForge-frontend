@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTicketById, assignTicket, clearCurrentTicket } from '../../features/tickets/ticketSlice';
+import { fetchTicketById, fetchTicketHistory, assignTicket, clearCurrentTicket } from '../../features/tickets/ticketSlice';
 import axiosClient from '../../api/axiosClient';
 
 // ASSUMPTIONS (flagging these since they weren't confirmed in our earlier back-and-forth):
@@ -74,7 +74,7 @@ const TicketDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { currentTicket, ticketDetailStatus, assignStatus, error } = useSelector(
+  const { currentTicket, ticketDetailStatus, ticketHistory, ticketHistoryStatus, assignStatus, error } = useSelector(
     (state) => state.tickets
   );
   const currentUser = useSelector((state) => state.auth.user);
@@ -101,6 +101,7 @@ const TicketDetail = () => {
   // never flashes if the user navigates straight to another one.
   useEffect(() => {
     dispatch(fetchTicketById(id));
+    dispatch(fetchTicketHistory(id));
     return () => dispatch(clearCurrentTicket());
   }, [dispatch, id]);
 
@@ -308,13 +309,31 @@ const TicketDetail = () => {
         </div>
       )}
 
-      {/* Placeholder - needs a status-history endpoint that doesn't exist yet */}
-      <div className="mt-6 bg-white rounded-lg shadow p-6 border border-dashed border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-400 mb-1">Status History</h2>
-        <p className="text-sm text-gray-400">
-          Not wired up yet - needs a backend endpoint (e.g. GET /api/tickets/{id}/history)
-          that returns status change events.
-        </p>
+      {/* Status History */}
+      <div className="mt-6 bg-white rounded-lg shadow p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Status History</h2>
+        {ticketHistoryStatus === 'loading' ? (
+          <p className="text-sm text-gray-500">Loading history...</p>
+        ) : ticketHistoryStatus === 'failed' ? (
+          <p className="text-sm text-red-500">Failed to load history.</p>
+        ) : ticketHistory.length === 0 ? (
+          <p className="text-sm text-gray-500">No history available.</p>
+        ) : (
+          <div className="space-y-4">
+            {ticketHistory.map((item) => (
+              <div key={item.id} className="flex gap-4 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-800 font-medium">
+                    {item.details}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    By {item.performedBy?.username || 'System'} &bull; {new Date(item.timestamp).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Placeholder - needs a comments endpoint that doesn't exist yet */}
