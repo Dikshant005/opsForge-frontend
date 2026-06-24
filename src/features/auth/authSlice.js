@@ -4,7 +4,18 @@ import axiosClient from '../../api/axiosClient';
 const tokenFromStorage = localStorage.getItem('token');
 
 
-// Creating Thunk
+// Creating Thunks
+export const registerUser = createAsyncThunk(
+  'auth/registerUser',
+  async (userData, thunkAPI) => {
+    try {
+      const response = await axiosClient.post('/api/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, thunkAPI) => {

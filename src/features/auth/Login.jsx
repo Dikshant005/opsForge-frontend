@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {useDispatch} from 'react-redux';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
 import {fetchCurrentUser} from './authSlice';
 import axiosClient from '../../api/axiosClient';
 
@@ -84,6 +84,13 @@ return (
             Sign In
           </button>
         </form>
+        
+        <div className="mt-4 text-center text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:underline">
+                Sign up here
+            </Link>
+        </div>
       </div>
     </div>
   );

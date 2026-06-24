@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { fetchCurrentUser } from './features/auth/authSlice';
 import DashboardLayout from './layouts/DashboardLayout';
 import Login from './features/auth/Login';
+import Signup from './features/auth/Signup';
 import Tickets from './features/tickets/Tickets';
 import CreateTicket from './features/tickets/CreateTicket';
 import Dashboard from './pages/Dashboard';
@@ -40,6 +41,7 @@ function App() {
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* PROTECTED ROUTES */}
         {/* We use our wrapper component here */}
